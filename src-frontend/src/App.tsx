@@ -1,9 +1,14 @@
 import "./App.scss";
 
+// import layouts
+import Header from "./layouts/Header";
+import MainContent from "./layouts/MainContent";
+
 function App() {
   return (
     <div className="App">
-      <div className="border border-black text-danger">Hello World</div>
+      <Header />
+      <MainContent />
     </div>
   );
 }
