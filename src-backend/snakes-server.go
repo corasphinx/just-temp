@@ -34,9 +34,10 @@ type (
 	}
 
 	SnakeUpdate struct {
-		Id    string `json:"id"`
-		Stage int    `json:"stage"`
-		Bid   int    `json:"bid"`
+		Id         string `json:"id"`
+		Stage      int    `json:"stage"`
+		Bid        int    `json:"bid"`
+		PreviousId string `json:"previousId"`
 	}
 
 	snakeInternal struct {
@@ -220,12 +221,17 @@ func (server SnakeServer) createSnakesServer(snakeRequests <-chan chan []snakeIn
 
 				newSnake := createSnake()
 
+				// Added by Arnold
+				previousId := snakes[snakeNumber].id
+
 				snakes[snakeNumber] = newSnake
 
 				updates <- SnakeUpdate{
 					Id:    newSnake.id,
 					Stage: newSnake.stage,
 					Bid:   0,
+					// Added by Arnold
+					PreviousId: previousId,
 				}
 
 			case snakeStage == 1:

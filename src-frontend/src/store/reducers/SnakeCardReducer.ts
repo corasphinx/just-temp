@@ -13,10 +13,12 @@ import { SnakeCardData, SnakeCardUpdate } from "../../types";
 
 export interface SnakeCardState {
   cardsData: Array<SnakeCardData>;
+  finishedSnakeCards: Array<SnakeCardData>;
 }
 
 const initialState: SnakeCardState = {
   cardsData: [],
+  finishedSnakeCards: [],
 };
 
 const SnakeCardReducer: (
@@ -29,6 +31,7 @@ const SnakeCardReducer: (
   switch (action.type) {
     case SET_ALL_SNAKES: {
       return {
+        ...state,
         cardsData: [].concat(action.payload),
       };
     }
@@ -46,11 +49,26 @@ const SnakeCardReducer: (
           newCardsData[foundIndex].stage = 1;
           newCardsData[foundIndex].bids.push(updatePayload.bid);
           return {
+            ...state,
             cardsData: newCardsData,
           };
         }
         // case: move from stage 3 to newly created stage 1
         else {
+          let previousId: string = updatePayload.previousId;
+          let newFinishedSnakeCards: Array<SnakeCardData> = clone(
+            state.finishedSnakeCards
+          );
+          if (previousId.length > 0) {
+            let previousIndex: number = state.cardsData.findIndex(
+              (e) => e.id === previousId
+            );
+            if (previousIndex >= 0) {
+              newFinishedSnakeCards.push(state.cardsData[previousIndex]);
+              newCardsData.splice(previousIndex, 1);
+            }
+          }
+
           newCardsData.push({
             id: updatePayload.id,
             stage: 1,
@@ -58,6 +76,7 @@ const SnakeCardReducer: (
             hasInitialized: true,
           });
           return {
+            finishedSnakeCards: newFinishedSnakeCards,
             cardsData: newCardsData,
           };
         }
@@ -68,6 +87,7 @@ const SnakeCardReducer: (
         if (updatePayload.bid === 0) {
           newCardsData[foundIndex].stage = updatePayload.stage;
           return {
+            ...state,
             cardsData: newCardsData,
           };
         }
@@ -81,6 +101,7 @@ const SnakeCardReducer: (
             newCardsData[foundIndex].bids[bidFoundIndex] = 0;
           }
           return {
+            ...state,
             cardsData: newCardsData,
           };
         }
@@ -90,12 +111,15 @@ const SnakeCardReducer: (
         // case: move from stage 2 to stage 3
         newCardsData[foundIndex].stage = 3;
         return {
+          ...state,
           cardsData: newCardsData,
         };
       }
     }
     case INITIALIZE_ALL_BIDS_LIST: {
       return {
+        ...state,
+        finishedSnakeCards: [],
         cardsData: state.cardsData.map((card, index) => ({
           id: card.id,
           stage: card.stage,
