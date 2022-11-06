@@ -19,13 +19,20 @@ interface MainContentProps {
 }
 
 const MainContent = ({ snakeCards }: MainContentProps) => {
-  console.log(snakeCards);
   return (
-    <div className="snake-cards-container">
-      {snakeCards &&
-        snakeCards.map((snakeCard) => (
-          <SnakeCard key={snakeCard.id} {...snakeCard} />
-        ))}
+    <div className="overflow-auto p-3 d-flex align-items-center justify-content-center">
+      <div
+        className="snake-cards-container"
+        style={{
+          width: snakeCards ? 220 * snakeCards?.length : "100%",
+        }}
+      >
+        {snakeCards &&
+          snakeCards.map((snakeCard) => (
+            <SnakeCard key={snakeCard.id} {...snakeCard} />
+          ))}
+        {/* <SnakeCard id="id" bids={[]} hasInitialized={true} stage={2} /> */}
+      </div>
     </div>
   );
 };

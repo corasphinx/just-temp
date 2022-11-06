@@ -8,22 +8,44 @@ import { constant } from "../constants";
 
 const getAllSnakes: () => Promise<Array<SnakeCardData>> = () => {
   return new Promise<Array<SnakeCardData>>((resolve, reject) => {
-    try {
-      axios
-        .get<Array<SnakeCardUpdate>>(constant.app.apiUrl + "snakes")
-        .then((res) => {
-          resolve(
-            res.data.map((e) => ({
-              id: e.id,
-              stage: e.stage,
-              bids: [],
-            }))
-          );
-        });
-    } catch (err) {
-      reject(err);
-    }
+    axios
+      .get<Array<SnakeCardUpdate>>(constant.app.apiUrl + "snakes")
+      .then((res) => {
+        resolve(
+          res.data.map((e) => ({
+            id: e.id,
+            stage: e.stage,
+            bids: [],
+            hasInitialized: false,
+          }))
+        );
+      })
+      .catch((err) => {
+        reject(err);
+      });
   });
+};
+
+const getAllSnakesBids: (
+  idList: Array<string>
+) => Promise<Array<Array<number>>> = (idList) => {
+  let promises: Promise<Array<number>>[] = [];
+  for (let i = 0; i < idList.length; i++) {
+    const id = idList[i];
+    promises.push(
+      new Promise<Array<number>>((resolve, reject) => {
+        axios
+          .get<Array<number>>(constant.app.apiUrl + `bids?snake-id=${id}`)
+          .then((res) => {
+            resolve(res.data);
+          })
+          .catch((err) => {
+            reject(err);
+          });
+      })
+    );
+  }
+  return Promise.all(promises);
 };
 
 const getSnakeTVL: (bids: Array<number>) => number = (bids) => {
@@ -38,4 +60,4 @@ const getHighestBid: (bids: Array<number>) => number = (bids) => {
   }
 };
 
-export { getAllSnakes, getSnakeTVL, getHighestBid };
+export { getAllSnakes, getAllSnakesBids, getSnakeTVL, getHighestBid };

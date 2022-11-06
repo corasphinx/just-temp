@@ -8,4 +8,5 @@ export interface SnakeCardData {
   id: string;
   stage: number;
   bids: Array<number>;
+  hasInitialized: boolean;
 }

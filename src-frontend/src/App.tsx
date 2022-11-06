@@ -4,12 +4,16 @@ import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
 // import types
-import { SnakeCardData } from "./types";
+import { SnakeCardData, SnakeCardUpdate } from "./types";
 
 // import redux
 import store from "./store";
 import { connect } from "react-redux";
-import { setAllSnakesAction } from "./store/actions/SnakeCardActions";
+import {
+  setAllSnakesAction,
+  initializeAllBidsList,
+  updateSnakeAction,
+} from "./store/actions/SnakeCardActions";
 
 // import scss
 import "./App.scss";
@@ -25,26 +29,38 @@ import MainContent from "./layouts/MainContent";
 import * as Websocket from "websocket";
 
 // import utils
-import { getAllSnakes } from "./utils/snakeCards";
+import { getAllSnakes, getAllSnakesBids } from "./utils/snakeCards";
 
 let onceConnected = false;
 
 interface AppProps {
-  setAllSnakesAction: (data: Array<SnakeCardData>) => void;
+  setAllSnakesAction: (snakes: Array<SnakeCardData>) => void;
+  initializeAllBidsList: (allBidsList: Array<Array<number>>) => void;
+  updateSnakeAction: (snakeupdate: SnakeCardUpdate) => void;
 }
 
-const App = ({ setAllSnakesAction }: AppProps) => {
+const App = ({
+  setAllSnakesAction,
+  initializeAllBidsList,
+  updateSnakeAction,
+}: AppProps) => {
   const [socket, setSocket] = useState<Websocket.w3cwebsocket | null>(null);
 
   useEffect(() => {
     getAllSnakes()
       .then((res) => {
         setAllSnakesAction(res);
+        getAllSnakesBids(res.map((e) => e.id))
+          .then((allBidsList) => {
+            initializeAllBidsList(allBidsList);
+          })
+          .catch((err) => {
+            console.log("error while fetching all snakes bids data: ", err);
+          });
       })
       .catch((err) => {
         console.log("error while fetching all snakes data: ", err);
       });
-
     if (!onceConnected) {
       const newSocket = new Websocket.w3cwebsocket(
         constant.app.socketRequestUrl
@@ -53,6 +69,7 @@ const App = ({ setAllSnakesAction }: AppProps) => {
         newSocket.send("Hello!");
         newSocket.onmessage = (msg: Websocket.IMessageEvent) => {
           console.log(msg.data);
+          updateSnakeAction(JSON.parse(msg.data.toString()));
         };
 
         newSocket.onclose = () => {
@@ -80,12 +97,18 @@ const App = ({ setAllSnakesAction }: AppProps) => {
 // prop-types
 App.propTypes = {
   setAllSnakesAction: PropTypes.func.isRequired,
+  initializeAllBidsList: PropTypes.func.isRequired,
+  updateSnakeAction: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state: ReturnType<typeof store.getState>) => ({});
 const mapDispatchToProps = (dispatch: typeof store.dispatch) => ({
-  setAllSnakesAction: (data: Array<SnakeCardData>) =>
-    dispatch(setAllSnakesAction(data)),
+  setAllSnakesAction: (snakes: Array<SnakeCardData>) =>
+    dispatch(setAllSnakesAction(snakes)),
+  initializeAllBidsList: (allBidsList: Array<Array<number>>) =>
+    dispatch(initializeAllBidsList(allBidsList)),
+  updateSnakeAction: (snakeUpdate: SnakeCardUpdate) =>
+    dispatch(updateSnakeAction(snakeUpdate)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

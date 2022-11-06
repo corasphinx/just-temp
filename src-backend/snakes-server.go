@@ -261,10 +261,12 @@ func (server SnakeServer) createSnakesServer(snakeRequests <-chan chan []snakeIn
 				snakes[snakeNumber].bids[bidNumber] = 0
 
 				// added by Arnold
-				updates <- SnakeUpdate{
-					Id:    snakeId,
-					Stage: snakeStage,
-					Bid:   previousBid,
+				if previousBid > 0 {
+					updates <- SnakeUpdate{
+						Id:    snakeId,
+						Stage: snakeStage,
+						Bid:   previousBid,
+					}
 				}
 
 			case snakeStage == 3:
