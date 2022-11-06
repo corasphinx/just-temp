@@ -1,6 +1,6 @@
 // reducer actions
-export const SET_ALL_BIDS: string = "SET_BIDS";
-export const UPDATE_BIDS: string = "SET_BIDS";
+export const SET_ALL_SNAKES: string = "SET_ALL_SNAKES";
+export const UPDATE_SNAKE: string = "UPDATE_SNAKE";
 
 // types
 export interface StoreAction {

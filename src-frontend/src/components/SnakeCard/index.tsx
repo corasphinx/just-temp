@@ -1,11 +1,14 @@
 // import scss
 import "./index.scss";
 
-// import types
-import { SnakeCardProps } from "../../types";
-
 // import prop-types
 import PropTypes from "prop-types";
+
+interface SnakeCardProps {
+  snakeId: string;
+  snakeTVL: number;
+  highestBid: number;
+}
 
 const SnakeCard = ({ snakeId, snakeTVL, highestBid }: SnakeCardProps) => {
   return (

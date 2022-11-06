@@ -7,10 +7,10 @@ import (
 
 const (
 	// TradeInterval between sending out a new snake update
-	TradeInterval = 5 * time.Second
+	TradeInterval = 1 * time.Second
 
 	// SnakeMaxSize of snakes that can be in existence at once
-	SnakeMaxSize = 10
+	SnakeMaxSize = 3
 
 	// SnakeMaxBid that can be made
 	SnakeMaxBid = 1_000_000
@@ -55,10 +55,10 @@ type (
 
 func NewSnakeServer() SnakeServer {
 	return SnakeServer{
-		connected:    make(map[string]chan<- SnakeUpdate),
-		snakeUpdates: make(chan SnakeUpdate),
+		connected:     make(map[string]chan<- SnakeUpdate),
+		snakeUpdates:  make(chan SnakeUpdate),
 		snakeRequests: make(chan chan []snakeInternal, 0),
-		messages:     make(chan SnakeRequest),
+		messages:      make(chan SnakeRequest),
 	}
 }
 
@@ -255,7 +255,17 @@ func (server SnakeServer) createSnakesServer(snakeRequests <-chan chan []snakeIn
 
 				bidNumber := rand.Intn(snakeBidsLen)
 
+				// added by Arnold
+				previousBid := snakes[snakeNumber].bids[bidNumber]
+
 				snakes[snakeNumber].bids[bidNumber] = 0
+
+				// added by Arnold
+				updates <- SnakeUpdate{
+					Id:    snakeId,
+					Stage: snakeStage,
+					Bid:   previousBid,
+				}
 
 			case snakeStage == 3:
 

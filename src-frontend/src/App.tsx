@@ -1,5 +1,16 @@
 import { useState, useEffect } from "react";
 
+// import prop-types
+import PropTypes from "prop-types";
+
+// import types
+import { SnakeCardData } from "./types";
+
+// import redux
+import store from "./store";
+import { connect } from "react-redux";
+import { setAllSnakesAction } from "./store/actions/SnakeCardActions";
+
 // import scss
 import "./App.scss";
 
@@ -18,10 +29,22 @@ import { getAllSnakes } from "./utils/snakeCards";
 
 let onceConnected = false;
 
-const App = () => {
+interface AppProps {
+  setAllSnakesAction: (data: Array<SnakeCardData>) => void;
+}
+
+const App = ({ setAllSnakesAction }: AppProps) => {
   const [socket, setSocket] = useState<Websocket.w3cwebsocket | null>(null);
 
   useEffect(() => {
+    getAllSnakes()
+      .then((res) => {
+        setAllSnakesAction(res);
+      })
+      .catch((err) => {
+        console.log("error while fetching all snakes data: ", err);
+      });
+
     if (!onceConnected) {
       const newSocket = new Websocket.w3cwebsocket(
         constant.app.socketRequestUrl
@@ -54,4 +77,14 @@ const App = () => {
   );
 };
 
-export default App;
+App.propTypes = {
+  setAllSnakesAction: PropTypes.func.isRequired,
+};
+
+const mapStateToProps = (state: ReturnType<typeof store.getState>) => ({});
+const mapDispatchToProps = (dispatch: typeof store.dispatch) => ({
+  setAllSnakesAction: (data: Array<SnakeCardData>) =>
+    dispatch(setAllSnakesAction(data)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);

@@ -1,31 +1,33 @@
-import { SET_ALL_BIDS, UPDATE_BIDS, StoreAction } from "../types";
+import { SET_ALL_SNAKES, UPDATE_SNAKE, StoreAction } from "../types";
 
 export interface SnakeCard {
   id: string;
   stage: number;
-  bid: number;
-  tvl: number;
+  bids: Array<number>;
 }
 
 export interface SnakeCardState {
   cardsData: Array<SnakeCard>;
-  highestBid: number;
 }
 
 const initialState: SnakeCardState = {
   cardsData: [],
-  highestBid: 0,
 };
 
-const SnakeCardReducer = (
+const SnakeCardReducer: (
+  state: SnakeCardState,
+  action: StoreAction
+) => SnakeCardState = (
   state: SnakeCardState = initialState,
   action: StoreAction
 ) => {
   switch (action.type) {
-    case SET_ALL_BIDS: {
-      return initialState;
+    case SET_ALL_SNAKES: {
+      return {
+        cardsData: [].concat(action.payload),
+      };
     }
-    case UPDATE_BIDS: {
+    case UPDATE_SNAKE: {
       return initialState;
     }
     default:
