@@ -1,13 +1,10 @@
 import { SET_ALL_SNAKES, UPDATE_SNAKE, StoreAction } from "../types";
 
-export interface SnakeCard {
-  id: string;
-  stage: number;
-  bids: Array<number>;
-}
+// import types
+import { SnakeCardData } from "../../types";
 
 export interface SnakeCardState {
-  cardsData: Array<SnakeCard>;
+  cardsData: Array<SnakeCardData>;
 }
 
 const initialState: SnakeCardState = {

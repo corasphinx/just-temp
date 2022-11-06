@@ -77,6 +77,7 @@ const App = ({ setAllSnakesAction }: AppProps) => {
   );
 };
 
+// prop-types
 App.propTypes = {
   setAllSnakesAction: PropTypes.func.isRequired,
 };
