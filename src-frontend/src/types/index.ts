@@ -3,3 +3,9 @@ export interface SnakeCardProps {
   snakeTVL: number;
   highestBid: number;
 }
+
+export interface SnakeCardData {
+  id: string;
+  stage: number;
+  bid: number;
+}
