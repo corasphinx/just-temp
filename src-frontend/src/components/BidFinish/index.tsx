@@ -44,19 +44,19 @@ const BidFinish = ({
         <div className="bid-finish-container">
           <div className="bid-finish-modal">
             <div>Bidding finished!!!</div>
-            <div className="mt-4">
+            <div className="mt-2 mt-md-4">
               Snake highest bid was{" "}
               <span className="fw-bold">
                 {bids.length > 0 ? Math.max(...bids) : 0}
               </span>
             </div>
-            <div className="mt-4">
+            <div className="mt-2 mt-md-4">
               The second to last highest bid was{" "}
               <span className="fw-bold">
                 {bids.length > 1 ? clone(bids).sort()[bids.length - 2] : 0}
               </span>
             </div>
-            <div className="mt-4">
+            <div className="mt-2 mt-md-4">
               Congratulations to the lucky winner of snake id{" "}
               <span className="fw-bold">{currentCard.id}!</span>
             </div>

@@ -1,3 +1,6 @@
+// import scss
+import "./index.scss";
+
 // import types
 import { SnakeCardData } from "../../types";
 
@@ -14,7 +17,7 @@ interface MainContentProps {
 
 const MainContent = ({ snakeCards }: MainContentProps) => {
   return (
-    <div className="d-flex overflow-auto p-3">
+    <div className="main-content">
       <div className="ms-auto"></div>
       {snakeCards &&
         snakeCards.map((snakeCard) => (
