@@ -35,11 +35,9 @@ import MainContent from "./layouts/MainContent";
 // import components
 import BidFinish from "./components/BidFinish";
 
-let onceConnected = false;
-let socketConnecting = false;
+let socketConnectTrying: boolean = false;
 
 interface AppProps {
-  currentBiddingSnakeId: string;
   setAllSnakesAction: (snakes: Array<SnakeCardData>) => void;
   initializeAllBidsListAction: (allBidsList: Array<Array<number>>) => void;
   updateSnakeAction: (snakeupdate: SnakeCardUpdate) => void;
@@ -47,19 +45,20 @@ interface AppProps {
 }
 
 const App = ({
-  currentBiddingSnakeId,
   setAllSnakesAction,
   initializeAllBidsListAction,
   updateSnakeAction,
   setCurrentBiddingSnakeId,
 }: AppProps) => {
   const [socket, setSocket] = useState<Websocket.w3cwebsocket | null>(null);
+  const [socketConnecting, setSocketConnecting] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
   useEffect(() => {
-    initData();
-    if (!onceConnected && !socketConnecting) {
-      socketConnecting = true;
+    if (!socketConnectTrying && !socketConnecting && !socket) {
+      socketConnectTrying = true;
+      initData();
+      setSocketConnecting(true);
       initSocket();
     }
     return () => {
@@ -87,22 +86,18 @@ const App = ({
   };
 
   const initSocket = () => {
-    if (onceConnected) {
-      return;
-    }
     const newSocket = new Websocket.w3cwebsocket(constant.app.socketRequestUrl);
     newSocket.onopen = () => {
-      socketConnecting = false;
+      setSocketConnecting(false);
       console.log("Socket Connected!");
       setError("");
       setSocket(newSocket);
-      onceConnected = true;
+      socketConnectTrying = false;
 
       newSocket.onclose = () => {
         console.log("Socket is Closed!!!");
         setError("Socket is Closed!!!");
         setSocket(null);
-        onceConnected = false;
       };
       newSocket.onmessage = (msg: Websocket.IMessageEvent) => {
         const data: SnakeCardUpdate = JSON.parse(msg.data.toString());
@@ -117,15 +112,17 @@ const App = ({
     };
 
     newSocket.onerror = () => {
-      socketConnecting = false;
+      setSocketConnecting(false);
       console.log("Socket Connection Error!!!");
       setError("Socket Connection Error!!!");
       setSocket(null);
-      onceConnected = false;
+      socketConnectTrying = true;
     };
   };
 
   const onRetry = () => {
+    socketConnectTrying = true;
+    setSocketConnecting(true);
     initData();
     initSocket();
   };
@@ -138,9 +135,18 @@ const App = ({
           <h4 className="text-white">{error}</h4>
           <button
             onClick={onRetry}
-            className="btn btn-warning mt-2 w-25 fw-bold"
+            className={
+              "btn btn-warning mt-2 w-25 fw-bold " +
+              (socketConnecting ? "disabled" : "")
+            }
           >
-            Retry
+            {socketConnecting ? (
+              <div className="text-center">
+                <div className="spinner-border spinner-border-sm"></div>
+              </div>
+            ) : (
+              "Retry"
+            )}
           </button>
         </div>
       ) : (
@@ -155,16 +161,13 @@ const App = ({
 
 // prop-types
 App.propTypes = {
-  currentBiddingSnakeId: PropTypes.string.isRequired,
   setAllSnakesAction: PropTypes.func.isRequired,
   initializeAllBidsListAction: PropTypes.func.isRequired,
   updateSnakeAction: PropTypes.func.isRequired,
   setCurrentBiddingSnakeId: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = (state: ReturnType<typeof store.getState>) => ({
-  currentBiddingSnakeId: state.snakeCards.currentBiddingSnakeId,
-});
+const mapStateToProps = (state: ReturnType<typeof store.getState>) => ({});
 const mapDispatchToProps = (dispatch: typeof store.dispatch) => ({
   setAllSnakesAction: (snakes: Array<SnakeCardData>) =>
     dispatch(setAllSnakesAction(snakes)),
