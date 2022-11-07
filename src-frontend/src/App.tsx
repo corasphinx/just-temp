@@ -36,6 +36,7 @@ import MainContent from "./layouts/MainContent";
 import BidFinish from "./components/BidFinish";
 
 let onceConnected = false;
+let socketConnecting = false;
 
 interface AppProps {
   currentBiddingSnakeId: string;
@@ -53,8 +54,22 @@ const App = ({
   setCurrentBiddingSnakeId,
 }: AppProps) => {
   const [socket, setSocket] = useState<Websocket.w3cwebsocket | null>(null);
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
+    initData();
+    if (!onceConnected && !socketConnecting) {
+      socketConnecting = true;
+      initSocket();
+    }
+    return () => {
+      if (socket) {
+        socket.close();
+      }
+    };
+  }, []);
+
+  const initData = () => {
     getAllSnakes()
       .then((res) => {
         setAllSnakesAction(res);
@@ -69,42 +84,71 @@ const App = ({
       .catch((err) => {
         console.log("error while fetching all snakes data: ", err);
       });
-    if (!onceConnected) {
-      const newSocket = new Websocket.w3cwebsocket(
-        constant.app.socketRequestUrl
-      );
-      newSocket.onopen = () => {
-        newSocket.send("Hello!");
-        newSocket.onmessage = (msg: Websocket.IMessageEvent) => {
-          const data: SnakeCardUpdate = JSON.parse(msg.data.toString());
-          console.log(data);
-          updateSnakeAction(data);
-          if (data.stage == 1 && data.bid > 0) {
-            setCurrentBiddingSnakeId(data.id);
-          } else {
-            setCurrentBiddingSnakeId("");
-          }
-        };
+  };
 
-        newSocket.onclose = () => {
-          console.log("Socket is closed");
-        };
-      };
+  const initSocket = () => {
+    if (onceConnected) {
+      return;
+    }
+    const newSocket = new Websocket.w3cwebsocket(constant.app.socketRequestUrl);
+    newSocket.onopen = () => {
+      socketConnecting = false;
+      console.log("Socket Connected!");
+      setError("");
       setSocket(newSocket);
       onceConnected = true;
-    }
-    return () => {
-      if (socket) {
-        socket.close();
-      }
+
+      newSocket.onclose = () => {
+        console.log("Socket is Closed!!!");
+        setError("Socket is Closed!!!");
+        setSocket(null);
+        onceConnected = false;
+      };
+      newSocket.onmessage = (msg: Websocket.IMessageEvent) => {
+        const data: SnakeCardUpdate = JSON.parse(msg.data.toString());
+        console.log(data);
+        updateSnakeAction(data);
+        if (data.stage == 1 && data.bid > 0) {
+          setCurrentBiddingSnakeId(data.id);
+        } else {
+          setCurrentBiddingSnakeId("");
+        }
+      };
     };
-  }, []);
+
+    newSocket.onerror = () => {
+      socketConnecting = false;
+      console.log("Socket Connection Error!!!");
+      setError("Socket Connection Error!!!");
+      setSocket(null);
+      onceConnected = false;
+    };
+  };
+
+  const onRetry = () => {
+    initData();
+    initSocket();
+  };
 
   return (
     <div className="App">
       <Header />
-      <MainContent />
-      <BidFinish />
+      {error.length > 0 ? (
+        <div className="text-center">
+          <h4 className="text-white">{error}</h4>
+          <button
+            onClick={onRetry}
+            className="btn btn-warning mt-2 w-25 fw-bold"
+          >
+            Retry
+          </button>
+        </div>
+      ) : (
+        <>
+          <MainContent />
+          <BidFinish />
+        </>
+      )}
     </div>
   );
 };
