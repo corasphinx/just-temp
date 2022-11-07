@@ -7,10 +7,10 @@ import (
 
 const (
 	// TradeInterval between sending out a new snake update
-	TradeInterval = 1 * time.Second
+	TradeInterval = 5 * time.Second
 
 	// SnakeMaxSize of snakes that can be in existence at once
-	SnakeMaxSize = 5
+	SnakeMaxSize = 10
 
 	// SnakeMaxBid that can be made
 	SnakeMaxBid = 1_000_000
