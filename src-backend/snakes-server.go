@@ -10,7 +10,7 @@ const (
 	TradeInterval = 1 * time.Second
 
 	// SnakeMaxSize of snakes that can be in existence at once
-	SnakeMaxSize = 3
+	SnakeMaxSize = 5
 
 	// SnakeMaxBid that can be made
 	SnakeMaxBid = 1_000_000

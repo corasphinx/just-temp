@@ -1,8 +1,9 @@
 import {
   SET_ALL_SNAKES,
   UPDATE_SNAKE,
-  StoreAction,
   INITIALIZE_ALL_BIDS_LIST,
+  SHIFT_FINISHED_CARD,
+  StoreAction,
 } from "../types";
 
 // import types
@@ -17,7 +18,7 @@ export const setAllSnakesAction: (
   };
 };
 
-export const initializeAllBidsList: (
+export const initializeAllBidsListAction: (
   allBidsList: Array<Array<number>>
 ) => StoreAction = (allBidsList) => {
   return {
@@ -32,5 +33,14 @@ export const updateSnakeAction: (
   return {
     payload: snakeUpdate,
     type: UPDATE_SNAKE,
+  };
+};
+
+export const shiftFinishedCardAction: (currentCardId: string) => StoreAction = (
+  currentCardId
+) => {
+  return {
+    payload: currentCardId,
+    type: SHIFT_FINISHED_CARD,
   };
 };

@@ -11,7 +11,7 @@ import store from "./store";
 import { connect } from "react-redux";
 import {
   setAllSnakesAction,
-  initializeAllBidsList,
+  initializeAllBidsListAction,
   updateSnakeAction,
 } from "./store/actions/SnakeCardActions";
 
@@ -21,27 +21,30 @@ import "./App.scss";
 // import constants
 import { constant } from "./constants";
 
-// import layouts
-import Header from "./layouts/Header";
-import MainContent from "./layouts/MainContent";
-
 // import websockets
 import * as Websocket from "websocket";
 
 // import utils
 import { getAllSnakes, getAllSnakesBids } from "./utils/snakeCards";
 
+// import layouts
+import Header from "./layouts/Header";
+import MainContent from "./layouts/MainContent";
+
+// import components
+import BidFinish from "./components/BidFinish";
+
 let onceConnected = false;
 
 interface AppProps {
   setAllSnakesAction: (snakes: Array<SnakeCardData>) => void;
-  initializeAllBidsList: (allBidsList: Array<Array<number>>) => void;
+  initializeAllBidsListAction: (allBidsList: Array<Array<number>>) => void;
   updateSnakeAction: (snakeupdate: SnakeCardUpdate) => void;
 }
 
 const App = ({
   setAllSnakesAction,
-  initializeAllBidsList,
+  initializeAllBidsListAction,
   updateSnakeAction,
 }: AppProps) => {
   const [socket, setSocket] = useState<Websocket.w3cwebsocket | null>(null);
@@ -52,7 +55,7 @@ const App = ({
         setAllSnakesAction(res);
         getAllSnakesBids(res.map((e) => e.id))
           .then((allBidsList) => {
-            initializeAllBidsList(allBidsList);
+            initializeAllBidsListAction(allBidsList);
           })
           .catch((err) => {
             console.log("error while fetching all snakes bids data: ", err);
@@ -68,7 +71,7 @@ const App = ({
       newSocket.onopen = () => {
         newSocket.send("Hello!");
         newSocket.onmessage = (msg: Websocket.IMessageEvent) => {
-          console.log(msg.data);
+          console.log(JSON.parse(msg.data.toString()));
           updateSnakeAction(JSON.parse(msg.data.toString()));
         };
 
@@ -90,6 +93,7 @@ const App = ({
     <div className="App">
       <Header />
       <MainContent />
+      <BidFinish />
     </div>
   );
 };
@@ -97,7 +101,7 @@ const App = ({
 // prop-types
 App.propTypes = {
   setAllSnakesAction: PropTypes.func.isRequired,
-  initializeAllBidsList: PropTypes.func.isRequired,
+  initializeAllBidsListAction: PropTypes.func.isRequired,
   updateSnakeAction: PropTypes.func.isRequired,
 };
 
@@ -105,8 +109,8 @@ const mapStateToProps = (state: ReturnType<typeof store.getState>) => ({});
 const mapDispatchToProps = (dispatch: typeof store.dispatch) => ({
   setAllSnakesAction: (snakes: Array<SnakeCardData>) =>
     dispatch(setAllSnakesAction(snakes)),
-  initializeAllBidsList: (allBidsList: Array<Array<number>>) =>
-    dispatch(initializeAllBidsList(allBidsList)),
+  initializeAllBidsListAction: (allBidsList: Array<Array<number>>) =>
+    dispatch(initializeAllBidsListAction(allBidsList)),
   updateSnakeAction: (snakeUpdate: SnakeCardUpdate) =>
     dispatch(updateSnakeAction(snakeUpdate)),
 });
