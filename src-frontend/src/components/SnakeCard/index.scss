@@ -24,3 +24,11 @@
     font-weight: bold;
   }
 }
+
+.selected-snake-container {
+  width: 100px;
+  z-index: 1;
+  margin-left: -50px;
+  margin-top: 50px;
+  margin-right: 50px;
+}

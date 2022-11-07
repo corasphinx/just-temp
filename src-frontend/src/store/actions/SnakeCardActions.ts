@@ -3,6 +3,7 @@ import {
   UPDATE_SNAKE,
   INITIALIZE_ALL_BIDS_LIST,
   SHIFT_FINISHED_CARD,
+  SET_CURRENT_BIDDING_SNAKE_ID,
   StoreAction,
 } from "../types";
 
@@ -42,5 +43,12 @@ export const shiftFinishedCardAction: (currentCardId: string) => StoreAction = (
   return {
     payload: currentCardId,
     type: SHIFT_FINISHED_CARD,
+  };
+};
+
+export const setCurrentBiddingSnakeId: (id: string) => StoreAction = (id) => {
+  return {
+    payload: id,
+    type: SET_CURRENT_BIDDING_SNAKE_ID,
   };
 };

@@ -3,6 +3,7 @@ import {
   UPDATE_SNAKE,
   INITIALIZE_ALL_BIDS_LIST,
   SHIFT_FINISHED_CARD,
+  SET_CURRENT_BIDDING_SNAKE_ID,
   StoreAction,
 } from "../types";
 
@@ -15,11 +16,13 @@ import { SnakeCardData, SnakeCardUpdate } from "../../types";
 export interface SnakeCardState {
   cardsData: Array<SnakeCardData>;
   finishedSnakeCards: Array<SnakeCardData>;
+  currentBiddingSnakeId: string;
 }
 
 const initialState: SnakeCardState = {
   cardsData: [],
   finishedSnakeCards: [],
+  currentBiddingSnakeId: "",
 };
 
 const SnakeCardReducer: (
@@ -76,6 +79,7 @@ const SnakeCardReducer: (
             });
           }
           return {
+            ...state,
             finishedSnakeCards: newFinishedSnakeCards,
             cardsData: newCardsData,
           };
@@ -130,6 +134,7 @@ const SnakeCardReducer: (
     }
     case INITIALIZE_ALL_BIDS_LIST: {
       return {
+        currentBiddingSnakeId: "",
         finishedSnakeCards: [],
         cardsData: state.cardsData.map((card, index) => ({
           id: card.id,
@@ -155,6 +160,12 @@ const SnakeCardReducer: (
       } else {
         return { ...state };
       }
+    }
+    case SET_CURRENT_BIDDING_SNAKE_ID: {
+      return {
+        ...state,
+        currentBiddingSnakeId: action.payload,
+      };
     }
     default:
       return initialState;
